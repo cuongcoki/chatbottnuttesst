@@ -5,7 +5,7 @@ export const getRoleDefaultPath = (role: UserRole): string => {
   const rolePathMap: Record<UserRole, string> = {
     [UserRole.ADMIN]: '/admin/dashboard/usersapprove',
     [UserRole.TEACHER]: '/teacher/profile',
-    [UserRole.STUDENT]: '/student/profile',
+    [UserRole.STUDENT]: '/student/dashboard/ai-tutors',
   };
   return rolePathMap[role] || '/';
 };
