@@ -1,4 +1,17 @@
-// 
+// import ReactPlayer from "react-player";
+// import {
+//   MediaController,
+//   MediaControlBar,
+//   MediaTimeRange,
+//   MediaTimeDisplay,
+//   MediaVolumeRange,
+//   MediaPlaybackRateButton,
+//   MediaPlayButton,
+//   MediaSeekBackwardButton,
+//   MediaSeekForwardButton,
+//   MediaMuteButton,
+//   MediaFullscreenButton,
+// } from "media-chrome/react";
 import {
   BookOpen,
   FlaskConical,
@@ -18,7 +31,7 @@ import {
 
 import bg_sb from "../../../../public/image/ai_sb/bg1.jpeg";
 
-// import userGuide from "../../../../public/file/test.pdf";
+import bg_sb1 from "../../../../public/image/ai_sb/bg2.jpeg";
 
 export default function Player() {
   return (
@@ -68,8 +81,38 @@ export default function Player() {
                 </div>
               </div>
             </CarouselItem>
+
+
+             <CarouselItem>
+              <div className="relative w-full h-full  overflow-hidden rounded-lg">
+                {/* Layer 1: Background - Dưới cùng */}
+                <div className="absolute inset-0 z-0">
+                  <img
+                    src={bg_sb1}
+                    alt="Background"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            </CarouselItem>
+
            
-           
+            <CarouselItem>
+              <div className="tv-frame">
+                <div className="tv-bezel">
+                  <div className="tv-screen">
+                  
+                  </div>
+                </div>
+
+                <div className="tv-stand">
+                  <div className="flex flex-col items-center gap-1 mt-2">
+                    
+                 
+                  </div>
+                </div>
+              </div>
+            </CarouselItem>
           </CarouselContent>
           <CarouselPrevious className="carousel-previous" />
           <CarouselNext className="carousel-next" />
