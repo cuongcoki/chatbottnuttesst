@@ -1,17 +1,4 @@
-import ReactPlayer from "react-player";
-import {
-  MediaController,
-  MediaControlBar,
-  MediaTimeRange,
-  MediaTimeDisplay,
-  MediaVolumeRange,
-  MediaPlaybackRateButton,
-  MediaPlayButton,
-  MediaSeekBackwardButton,
-  MediaSeekForwardButton,
-  MediaMuteButton,
-  MediaFullscreenButton,
-} from "media-chrome/react";
+// 
 import {
   BookOpen,
   FlaskConical,
@@ -82,52 +69,7 @@ export default function Player() {
               </div>
             </CarouselItem>
 
-            <CarouselItem>
-              <div className="tv-frame">
-                <div className="tv-bezel">
-                  <div className="tv-screen">
-                    <MediaController className="media-controller">
-                      <ReactPlayer
-                        slot="media"
-                        src="https://stream.mux.com/jB8H3p02Ln9cWAkdy4EOgV3wQqAmGclHkLA5UhEozFY4.m3u8"
-                        controls={false}
-                        playing={true}
-                        loop={true}
-                        muted={true}
-                        width="100%"
-                        height="100%"
-                      />
-                      <MediaControlBar className="media-control-bar">
-                        <MediaPlayButton className="media-button" />
-                        <MediaSeekBackwardButton
-                          seekOffset={10}
-                          className="media-button"
-                        />
-                        <MediaSeekForwardButton
-                          seekOffset={10}
-                          className="media-button"
-                        />
-                        <MediaTimeRange className="media-time-range" />
-                        <MediaTimeDisplay
-                          showDuration
-                          className="media-time-display md:flex hidden"
-                        />
-                        <MediaMuteButton className="media-button" />
-                        <MediaVolumeRange className="media-volume-range md:flex hidden" />
-                        <MediaPlaybackRateButton className="media-button" />
-                        <MediaFullscreenButton className="media-button" />
-                      </MediaControlBar>
-                    </MediaController>
-                  </div>
-                </div>
-
-                <div className="tv-stand">
-                  <div className="tv-stand-neck"></div>
-                  <div className="tv-stand-base"></div>
-                </div>
-              </div>
-            </CarouselItem>
-
+           
             <CarouselItem>
               <div className="tv-frame">
                 <div className="tv-bezel">
