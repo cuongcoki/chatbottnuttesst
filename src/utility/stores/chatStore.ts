@@ -7,6 +7,7 @@ import { IApiError } from "../lib/IError";
 
 interface ITestSession {
   session_id: string;
+  title: string;
   created_at: string;
   message_count?: number;
 }
@@ -30,6 +31,7 @@ interface ChatBotState {
   messages: ITestMessage[];
   isLoading: boolean;
   isSending: boolean;
+  isStreaming: boolean;
   error: IApiError | null;
 
   // Actions
@@ -54,6 +56,7 @@ export const useChatBotStore = create<ChatBotState>()((set, get) => ({
   messages: [],
   isLoading: false,
   isSending: false,
+  isStreaming: false,
   error: null,
 
   /**
@@ -123,47 +126,60 @@ export const useChatBotStore = create<ChatBotState>()((set, get) => ({
   },
 
   /**
-   * Gửi tin nhắn - POST /chat
+   * Gửi tin nhắn - POST /chat/stream (streaming SSE)
+   * Luồng:
+   *  1. isSending=true → thêm user message → hiển thị spinner "Đang suy nghĩ..."
+   *  2. Nhận chunk đầu tiên → isSending=false, isStreaming=true → tạo assistant message
+   *  3. Các chunk tiếp → nối vào assistant message từng ký tự
+   *  4. Xong → isStreaming=false
    */
   sendMessage: async (sessionId: string, question: string) => {
+    const beforeLength = get().messages.length;
+
     try {
       set({ isSending: true, error: null });
 
-      // Optimistic update - hiển thị message user ngay
       const userMsg: ITestMessage = {
         role: "user",
         content: question,
         timestamp: new Date().toISOString(),
       };
+      set((state) => ({ messages: [...state.messages, userMsg] }));
 
-      set({
-        messages: [...get().messages, userMsg],
+      let firstChunk = true;
+
+      await chatbotAPI.sendMessageStream(sessionId, question, (chunk) => {
+        if (firstChunk) {
+          firstChunk = false;
+          const assistantMsg: ITestMessage = {
+            role: "assistant",
+            content: chunk,
+            timestamp: new Date().toISOString(),
+          };
+          set((state) => ({
+            messages: [...state.messages, assistantMsg],
+            isSending: false,
+            isStreaming: true,
+          }));
+        } else {
+          set((state) => {
+            const msgs = [...state.messages];
+            const last = msgs[msgs.length - 1];
+            msgs[msgs.length - 1] = { ...last, content: last.content + chunk };
+            return { messages: msgs };
+          });
+        }
       });
 
-      // Gọi API
-      const response = await chatbotAPI.sendMessage(sessionId, question);
-
-      // Thêm assistant response
-      const assistantMsg: ITestMessage = {
-        role: "assistant",
-        content: response.answer || "",
-        timestamp: new Date().toISOString(),
-      };
-
-      set((state) => ({
-        messages: [...state.messages, assistantMsg],
-        isSending: false,
-      }));
+      set({ isStreaming: false, isSending: false });
     } catch (error) {
       const apiError = handleApiError(error);
-
-      // Rollback optimistic update
       set((state) => ({
-        messages: state.messages.slice(0, -1),
+        messages: state.messages.slice(0, beforeLength),
         isSending: false,
+        isStreaming: false,
         error: apiError,
       }));
-
       throw apiError;
     }
   },
@@ -190,7 +206,7 @@ export const useChatBotStore = create<ChatBotState>()((set, get) => ({
 
   // Clear functions
   clearCurrentSession: () => {
-    set({ currentSessionId: "", messages: [], error: null });
+    set({ currentSessionId: "", messages: [], isStreaming: false, error: null });
   },
 
   clearAll: () => {
@@ -200,6 +216,7 @@ export const useChatBotStore = create<ChatBotState>()((set, get) => ({
       messages: [],
       isLoading: false,
       isSending: false,
+      isStreaming: false,
       error: null,
     });
   },

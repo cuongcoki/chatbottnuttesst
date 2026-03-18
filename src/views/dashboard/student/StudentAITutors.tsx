@@ -76,6 +76,7 @@ const StudentAITutors = () => {
     messages: storeMessages,
     isLoading,
     isSending,
+    isStreaming,
     setCurrentSessionId,
     clearCurrentSession,
     deleteSession,
@@ -84,7 +85,7 @@ const StudentAITutors = () => {
   // Map store sessions → ChatSession[] cho ChatHistory component
   const sessions: ChatSession[] = storeSessions.map((s) => ({
     id: s.session_id,
-    title: `Session ${s.session_id}`,
+    title: s.title || `Session ${s.session_id}`,
     lastMessage: "",
     timestamp: new Date(s.created_at),
     messageCount: s.message_count || 0,
@@ -257,7 +258,7 @@ const StudentAITutors = () => {
                 <div className="flex-shrink-0 bg-white border-t shadow-lg">
                   <ChatInput
                     onSendMessage={handleSendMessage}
-                    isLoading={isSending}
+                    isLoading={isSending || isStreaming}
                   />
                 </div>
               </>

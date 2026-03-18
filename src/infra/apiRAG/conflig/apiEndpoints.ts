@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
   RAG: {
     CREATE_SESSIONS: "/create_session",
     RAG_QUERY: "/chat",
+    CHAT_STREAM: "/chat/stream",
     GET_SESSIONS: "/sessions",
     GET_HISTORY: (session_id: string) => `/history/${session_id}`,
     DELETE_SESSION: (session_id: string) => `/delete_session/${session_id}`,

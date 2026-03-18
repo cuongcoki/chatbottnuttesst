@@ -53,6 +53,57 @@ class ChatBotAPI {
   }
 
   /**
+   * Gửi câu hỏi và nhận phản hồi dạng stream (SSE)
+   * POST /chat/stream
+   * Backend trả về: "data: <chunk>\n\n" mỗi token, kết thúc bằng "data: [DONE]\n\n"
+   */
+  async sendMessageStream(
+    session_id: string,
+    question: string,
+    onChunk: (chunk: string) => void
+  ): Promise<void> {
+    const BASE_URL = import.meta.env.VITE_API_RAG_URL || "http://14.225.211.7:8504";
+
+    const response = await fetch(`${BASE_URL}/chat/stream`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id, question, use_bm25: false, top_k: 7 }),
+    });
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.body) throw new Error("No response body");
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+        const raw = line.slice(6).trim();
+        if (!raw) continue;
+
+        try {
+          // Backend gửi: {"content": "...", "done": false/true, "sources": [...]}
+          const parsed = JSON.parse(raw) as { content: string; done: boolean };
+          if (parsed.done) return;
+          if (parsed.content) onChunk(parsed.content);
+        } catch {
+          // fallback: plain text chunk
+          onChunk(raw);
+        }
+      }
+    }
+  }
+
+  /**
    * Xóa session
    * DELETE /delete_session/{session_id}
    */
